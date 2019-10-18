@@ -9,19 +9,21 @@
 
 void dgemm0(const double *A, const double *B, double *C, const int n)
 {
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-            for (int k = 0; k < n; k++)
+    int i, j, k;
+    for (i = 0; i < n; i++)
+        for (j = 0; j < n; j++)
+            for (k = 0; k < n; k++)
                 C[i * n + j] += A[i * n + k] * B[k * n + j];
 }
 
 void dgemm1(const double *A, const double *B, double *C, const int n)
 {
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
+    int i, j, k;
+    for (i = 0; i < n; i++)
+        for (j = 0; j < n; j++)
         {
             register double r = C[i * n + j];
-            for (int k = 0; k < n; k++)
+            for (k = 0; k < n; k++)
                 r += A[i * n + k] * B[k * n + j];
             C[i * n + j] = r;
         }
@@ -67,9 +69,10 @@ void dgemm2(const double *A, const double *B, double *C, const int n)
 
 void dgemm3(const double *A, const double *B, double *C, const int n)
 {
-    for (int i = 0; i < n; i += 3)
+    int i, j, k;
+    for (i = 0; i < n; i += 3)
     {
-        for (int j = 0; j < n; j += 3)
+        for (j = 0; j < n; j += 3)
         {
             register int t = i * n + j;
             register int tt = t + n;
@@ -83,7 +86,7 @@ void dgemm3(const double *A, const double *B, double *C, const int n)
             register double c20 = C[ttt];
             register double c21 = C[ttt + 1];
             register double c22 = C[ttt + 2];
-            for (int k = 0; k < n; k += 3)
+            for (k = 0; k < n; k += 3)
             {
                 register int ta = i * n + k;
                 register int tta = ta + n;
@@ -165,12 +168,13 @@ void dgemm3(const double *A, const double *B, double *C, const int n)
 
 void ijk(const double *A, const double *B, double *C, const int n)
 {
-    for (int i = 0; i < n; i++)
+    int i, j, k;
+    for (i = 0; i < n; i++)
     {
-        for (int j = 0; j < n; j++)
+        for (j = 0; j < n; j++)
         {
             register double sum = 0.0;
-            for (int k = 0; k < n; k++)
+            for (k = 0; k < n; k++)
                 sum += A[i * n + k] * B[k * n + j];
             C[i * n + j] = sum;
         }
@@ -179,15 +183,16 @@ void ijk(const double *A, const double *B, double *C, const int n)
 
 void bijk(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int i = 0; i < n; i += b)
-        for (int j = 0; j < n; j += b)
-            for (int k = 0; k < n; k += b)
-                for (int i1 = i; i1 < i + b; i1++)
+    int i, j, k, i1, j1, k1;
+    for (i = 0; i < n; i += b)
+        for (j = 0; j < n; j += b)
+            for (k = 0; k < n; k += b)
+                for (i1 = i; i1 < i + b; i1++)
                 {
-                    for (int j1 = j; j1 < j + b; j1++)
+                    for (j1 = j; j1 < j + b; j1++)
                     {
                         register double sum = 0.0;
-                        for (int k1 = k; k1 < k + b; k1++)
+                        for (k1 = k; k1 < k + b; k1++)
                             sum += A[i1 * n + k1] * B[k1 * n + j1];
                         C[i1 * n + j1] = sum;
                     }
@@ -197,12 +202,13 @@ void bijk(const double *A, const double *B, double *C, const int n, const int b)
 void jik(const double *A, const double *B, double *C, const int n)
 {
     /* jik */
-    for (int j = 0; j < n; j++)
+    int i, j, k;
+    for (j = 0; j < n; j++)
     {
-        for (int i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             register double sum = 0.0;
-            for (int k = 0; k < n; k++)
+            for (k = 0; k < n; k++)
                 sum += A[i * n + k] * B[k * n + j];
             C[i * n + j] = sum;
         }
@@ -211,15 +217,16 @@ void jik(const double *A, const double *B, double *C, const int n)
 
 void bjik(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int j = 0; j < n; j += b)
-        for (int i = 0; i < n; i += b)
-            for (int k = 0; k < n; k += b)
-                for (int j1 = j; j1 < j + b; j1++)
+    int i, j, k, i1, j1, k1;
+    for (j = 0; j < n; j += b)
+        for (i = 0; i < n; i += b)
+            for (k = 0; k < n; k += b)
+                for (j1 = j; j1 < j + b; j1++)
                 {
-                    for (int i1 = i; i1 < i + b; i1++)
+                    for (i1 = i; i1 < i + b; i1++)
                     {
                         register double sum = 0.0;
-                        for (int k1 = k; k1 < k + b; k1++)
+                        for (k1 = k; k1 < k + b; k1++)
                             sum += A[i1 * n + k1] * B[k1 * n + j1];
                         C[i1 * n + j1] = sum;
                     }
@@ -229,12 +236,13 @@ void bjik(const double *A, const double *B, double *C, const int n, const int b)
 void kij(const double *A, const double *B, double *C, const int n)
 {
     /* kij */
-    for (int k = 0; k < n; k++)
+    int i, j, k;
+    for (k = 0; k < n; k++)
     {
-        for (int i = 0; i < n; i++)
+        for (i = 0; i < n; i++)
         {
             register double r = A[i * n + k];
-            for (int j = 0; j < n; j++)
+            for (j = 0; j < n; j++)
                 C[i * n + j] += r * B[k * n + j];
         }
     }
@@ -242,15 +250,16 @@ void kij(const double *A, const double *B, double *C, const int n)
 
 void bkij(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int k = 0; k < n; k += b)
-        for (int i = 0; i < n; i += b)
-            for (int j = 0; j < n; j += b)
-                for (int k1 = k; k1 < k + b; k1++)
+    int i, j, k, i1, j1, k1;
+    for (k = 0; k < n; k += b)
+        for (i = 0; i < n; i += b)
+            for (j = 0; j < n; j += b)
+                for (k1 = k; k1 < k + b; k1++)
                 {
-                    for (int i1 = i; i1 < i + b; i1++)
+                    for (i1 = i; i1 < i + b; i1++)
                     {
                         register double r = A[i1 * n + k1];
-                        for (int j1 = j; j1 < j + b; j1++)
+                        for (j1 = j; j1 < j + b; j1++)
                             C[i1 * n + j1] += r * B[k1 * n + j1];
                     }
                 }
@@ -259,12 +268,13 @@ void bkij(const double *A, const double *B, double *C, const int n, const int b)
 void ikj(const double *A, const double *B, double *C, const int n)
 {
     /* ikj */
-    for (int i = 0; i < n; i++)
+    int i, j, k;
+    for (i = 0; i < n; i++)
     {
-        for (int k = 0; k < n; k++)
+        for (k = 0; k < n; k++)
         {
             register double r = A[i * n + k];
-            for (int j = 0; j < n; j++)
+            for (j = 0; j < n; j++)
                 C[i * n + j] += r * B[k * n + j];
         }
     }
@@ -272,15 +282,16 @@ void ikj(const double *A, const double *B, double *C, const int n)
 
 void bikj(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int i = 0; i < n; i += b)
-        for (int k = 0; k < n; k += b)
-            for (int j = 0; j < n; j += b)
-                for (int i1 = i; i1 < i + b; i1++)
+    int i, j, k, i1, j1, k1;
+    for (i = 0; i < n; i += b)
+        for (k = 0; k < n; k += b)
+            for (j = 0; j < n; j += b)
+                for (i1 = i; i1 < i + b; i1++)
                 {
-                    for (int k1 = k; k1 < k + b; k1++)
+                    for (k1 = k; k1 < k + b; k1++)
                     {
                         register double r = A[i1 * n + k1];
-                        for (int j1 = j; j1 < j + b; j1++)
+                        for (j1 = j; j1 < j + b; j1++)
                             C[i1 * n + j1] += r * B[k1 * n + j1];
                     }
                 }
@@ -289,12 +300,13 @@ void bikj(const double *A, const double *B, double *C, const int n, const int b)
 void jki(const double *A, const double *B, double *C, const int n)
 {
     /* jki */
-    for (int j = 0; j < n; j++)
+    int i, j, k;
+    for (j = 0; j < n; j++)
     {
-        for (int k = 0; k < n; k++)
+        for (k = 0; k < n; k++)
         {
             register double r = B[k * n + j];
-            for (int i = 0; i < n; i++)
+            for (i = 0; i < n; i++)
                 C[i * n + j] += A[i * n + k] * r;
         }
     }
@@ -302,15 +314,16 @@ void jki(const double *A, const double *B, double *C, const int n)
 
 void bjki(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int j = 0; j < n; j += b)
-        for (int k = 0; k < n; k += b)
-            for (int i = 0; i < n; i += b)
-                for (int j1 = j; j1 < j + b; j1++)
+    int i, j, k, i1, j1, k1;
+    for (j = 0; j < n; j += b)
+        for (k = 0; k < n; k += b)
+            for (i = 0; i < n; i += b)
+                for (j1 = j; j1 < j + b; j1++)
                 {
-                    for (int k1 = k; k1 < k + b; k1++)
+                    for (k1 = k; k1 < k + b; k1++)
                     {
                         register double r = B[k1 * n + j1];
-                        for (int i1 = i; i1 < i + b; i1++)
+                        for (i1 = i; i1 < i + b; i1++)
                             C[i1 * n + j1] += A[i1 * n + k1] * r;
                     }
                 }
@@ -319,12 +332,13 @@ void bjki(const double *A, const double *B, double *C, const int n, const int b)
 void kji(const double *A, const double *B, double *C, const int n)
 {
     /* kji */
-    for (int k = 0; k < n; k++)
+    int i, j, k;
+    for (k = 0; k < n; k++)
     {
-        for (int j = 0; j < n; j++)
+        for (j = 0; j < n; j++)
         {
             register double r = B[k * n + j];
-            for (int i = 0; i < n; i++)
+            for (i = 0; i < n; i++)
                 C[i * n + j] += A[i * n + k] * r;
         }
     }
@@ -332,15 +346,16 @@ void kji(const double *A, const double *B, double *C, const int n)
 
 void bkji(const double *A, const double *B, double *C, const int n, const int b)
 {
-    for (int k = 0; k < n; k += b)
-        for (int j = 0; j < n; j += b)
-            for (int i = 0; i < n; i += b)
-                for (int k1 = k; k1 < k + b; k1++)
+    int i, j, k, i1, j1, k1;
+    for (k = 0; k < n; k += b)
+        for (j = 0; j < n; j += b)
+            for (i = 0; i < n; i += b)
+                for (k1 = k; k1 < k + b; k1++)
                 {
-                    for (int j1 = j; j1 < j + b; j1++)
+                    for (j1 = j; j1 < j + b; j1++)
                     {
                         register double r = B[k1 * n + j1];
-                        for (int i1 = i; i1 < i + b; i1++)
+                        for (i1 = i; i1 < i + b; i1++)
                             C[i1 * n + j1] += A[i1 * n + k1] * r;
                     }
                 }
@@ -348,5 +363,4 @@ void bkji(const double *A, const double *B, double *C, const int n, const int b)
 
 void optimal(const double *A, const double *B, double *C, const int n, const int b)
 {
-    
 }
