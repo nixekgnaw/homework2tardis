@@ -30,7 +30,6 @@ int mydgetrf(double *A, int *ipiv, int n)
             }
         }
         if (max==0){
-            printf('LUfactoration failed: coefficient matrix is singular');
             return -1;
         }
         else{
@@ -85,7 +84,20 @@ int mydgetrf(double *A, int *ipiv, int n)
 void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv)
 {
     /* add your code here */
-    return;
+    int i,j;
+    if (UPLO == 'L'){
+        for (i = 1;i<n;i++){
+            for (j = 0;j<i;j++)
+                B[ipiv[i]] -= B[ipiv[j]]*A[i*n+j];
+        }
+    }
+    else if (UPLO == 'U'){
+        B[ipiv[n-1]] /= A[(n-1)*n+n-1];
+        for (i = n-2;i>=0;i--)
+            for (j = i+1;j<n;j++)
+                B[ipiv[i]] -= B[ipiv[j]]*A[i*n+j];
+            B[ipiv[i]] /= A[i*n+i];
+    }
 }
 
 /**
