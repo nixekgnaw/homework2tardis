@@ -85,7 +85,8 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
     /* add your code here */
     int i,j;
     if (UPLO == 'L'){
-        double y[n];
+        double *y;
+        y = (double *) malloc(sizeof(double) * n);
         y[0] = B[ipiv[0]];
         for (i = 1;i<n;i++){
             y[i] = B[ipiv[i]];
