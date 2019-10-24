@@ -18,25 +18,24 @@
  * 
  **/
 int mydgetrf(double *A, int *ipiv, int n) {
-    /* add your code here */
-    int i, j, t, k, l, maxind;
+    int i, j, t, k, l, maxind,tempi;
     double temps,max;
     for (i = 0; i < n - 1; i++) {
         maxind = i;
-        max = abs(A[i * n + i]);
+        max = fabs(A[i * n + i]);
         for (t = i + 1; t < n; t++) {
-            if (abs(A[t * n + i]) > max) {
+            if (fabs(A[t * n + i]) > max) {
                 maxind = t;
-                max = abs(A[t * n + i]);
+                max = fabs(A[t * n + i]);
             }
         }
         if (max == 0) {
             return -1;
         } else {
             if (maxind != i) {
-                temps = ipiv[i];
+                tempi = ipiv[i];
                 ipiv[i] = ipiv[maxind];
-                ipiv[maxind] = temps;
+                ipiv[maxind] = tempi;
                 for (l = 0; l < n; l++) {
                     temps = A[i * n + l];
                     A[i * n + l] = A[maxind * n + l];
