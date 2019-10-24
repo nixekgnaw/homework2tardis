@@ -44,9 +44,9 @@ int mydgetrf(double *A, int *ipiv, int n) {
                 }
             }
             for (j = i + 1; j < n; j++) {
-                A[j * n + i] = A[j * n + i] / A[i * n + i];
+                A[j * n + i] /= A[i * n + i];
                 for (k = i + 1; k < n; k++) {
-                    A[j * n + k] = A[j * n + k] - A[j * n + i] * A[i * n + k];
+                    A[j * n + k] -= A[j * n + i] * A[i * n + k];
                 }
             }
         }
@@ -84,30 +84,14 @@ int mydgetrf(double *A, int *ipiv, int n) {
 void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
 
     /* add your code here */
-//    int i, j;
-//    if (UPLO == 'L') {
-//        for (i = 1; i < n; i++) {
-//            for (j = 0; j < i; j++)
-//                B[ipiv[i]] -= B[ipiv[j]] * A[i * n + j];
-//        }
-//    } else if (UPLO == 'U') {
-//        B[ipiv[n - 1]] /= A[(n - 1) * n + n - 1];
-//        for (i = n - 2; i >= 0; i--) {
-//            for (j = i + 1; j < n; j++)
-//                B[ipiv[i]] -= B[ipiv[j]] * A[i * n + j];
-//            B[ipiv[i]] /= A[i * n + i];
-//        }
-//    }
-
     int i,j;
     if (UPLO == 'L'){
         double y[n];
         y[0] = B[ipiv[0]];
         for (i = 1;i<n;i++){
-            double sum = 0;
+            y[i] = B[ipiv[i]];
             for (j = 0;j<i;j++)
-                sum += y[j]*A[i*n+j];
-            y[i] = B[ipiv[i]] - sum;
+                y[i] -= y[j]*A[i*n+j];
         }
         for (i=0;i<n;i++)
             B[i] = y[i];
