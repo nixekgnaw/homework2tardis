@@ -19,8 +19,9 @@
  **/
 int mydgetrf(double *A, int *ipiv, int n) {
     /* add your code here */
-    int i, j, t, k, l, maxind, max;
-    double temps;
+
+    int i, j, t, k, l, maxind;
+    double temps,max;
     for (i = 0; i < n - 1; i++) {
         maxind = i;
         max = abs(A[i * n + i]);
@@ -91,10 +92,11 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
         }
     } else if (UPLO == 'U') {
         B[ipiv[n - 1]] /= A[(n - 1) * n + n - 1];
-        for (i = n - 2; i >= 0; i--)
+        for (i = n - 2; i >= 0; i--) {
             for (j = i + 1; j < n; j++)
                 B[ipiv[i]] -= B[ipiv[j]] * A[i * n + j];
-        B[ipiv[i]] /= A[i * n + i];
+            B[ipiv[i]] /= A[i * n + i];
+        }
     }
 }
 
