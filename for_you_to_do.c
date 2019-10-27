@@ -18,8 +18,8 @@
  * 
  **/
 int mydgetrf(double *A, int *ipiv, int n) {
-    int i, j, t, k, l, maxind,tempi;
-    double temps,max;
+    int i, j, t, k, l, maxind, tempi;
+    double temps, max;
     for (i = 0; i < n - 1; i++) {
         maxind = i;
         max = fabs(A[i * n + i]);
@@ -83,20 +83,20 @@ int mydgetrf(double *A, int *ipiv, int n) {
 void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
 
     /* add your code here */
-    int i,j;
-    if (UPLO == 'L'){
+    int i, j;
+    if (UPLO == 'L') {
         double *y;
         y = (double *) malloc(sizeof(double) * n);
         y[0] = B[ipiv[0]];
-        for (i = 1;i<n;i++){
+        for (i = 1; i < n; i++) {
             y[i] = B[ipiv[i]];
-            for (j = 0;j<i;j++)
-                y[i] -= y[j]*A[i*n+j];
+            for (j = 0; j < i; j++)
+                y[i] -= y[j] * A[i * n + j];
         }
-        for (i=0;i<n;i++)
+        for (i = 0; i < n; i++)
             B[i] = y[i];
-    } else if (UPLO == 'U'){
-        B[n-1] /= A[(n-1)*n+n-1];
+    } else if (UPLO == 'U') {
+        B[n - 1] /= A[(n - 1) * n + n - 1];
         for (i = n - 2; i >= 0; i--) {
             for (j = i + 1; j < n; j++)
                 B[i] -= B[j] * A[i * n + j];
@@ -113,7 +113,92 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
 void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b) {
     /* add your code here */
     /* please just copy from your lab1 function optimal( ... ) */
-    return;
+    int ii, jj, kk, i1, j1, k1;
+    for (ii = 0; ii < i + b && ii < n; ii += b)
+        for (jj = 0; jj < j + b && jj < n; jj += b)
+            for (kk = 0; kk < k + b && kk < n; kk += b)
+                for (i1 = ii; i1 < ii + b && i1 < n; i1 += 3) {
+
+                    for (j1 = jj; j1 < jj + b && j1 < n; j1 += 3) {
+
+                        register int t = i1 * n + j1;
+                        register int tt = t + n;
+                        register int ttt = tt + n;
+                        register double c00 = C[t];
+                        register double c01 = C[t + 1];
+                        register double c02 = C[t + 2];
+                        register double c10 = C[tt];
+                        register double c11 = C[tt + 1];
+                        register double c12 = C[tt + 2];
+                        register double c20 = C[ttt];
+                        register double c21 = C[ttt + 1];
+                        register double c22 = C[ttt + 2];
+                        for (k1 = kk; k1 < kk + b && k1 < n; k1 += 3) {
+                            register int ta = i1 * n + k1;
+                            register int tta = ta + n;
+                            register int ttta = tta + n;
+                            register int tb = k1 * n + j1;
+                            register int ttb = tb + n;
+                            register int tttb = ttb + n;
+
+                            register double r1 = A[ta];     // a00
+                            register double r2 = A[tta];    // a10
+                            register double r3 = A[ttta];   // a20
+                            register double r4 = B[tb];     // b00
+                            register double r5 = B[tb + 1]; // b01
+                            register double r6 = B[tb + 2]; // b02
+
+                            c00 += r1 * r4;
+                            c01 += r1 * r5;
+                            c02 += r1 * r6;
+                            c10 += r2 * r4;
+                            c11 += r2 * r5;
+                            c12 += r2 * r6;
+                            c20 += r3 * r4;
+                            c21 += r3 * r5;
+                            c22 += r3 * r6;
+                            r1 = A[ta + 1];
+                            r2 = A[tta + 1];
+                            r3 = A[ttta + 1];
+                            r4 = B[ttb];
+                            r5 = B[ttb + 1];
+                            r6 = B[ttb + 2];
+                            c00 += r1 * r4;
+                            c01 += r1 * r5;
+                            c02 += r1 * r6;
+                            c10 += r2 * r4;
+                            c11 += r2 * r5;
+                            c12 += r2 * r6;
+                            c20 += r3 * r4;
+                            c21 += r3 * r5;
+                            c22 += r3 * r6;
+                            r1 = A[ta + 2];
+                            r2 = A[tta + 2];
+                            r3 = A[ttta + 2];
+                            r4 = B[tttb];
+                            r5 = B[tttb + 1];
+                            r6 = B[tttb + 2];
+                            c00 += r1 * r4;
+                            c01 += r1 * r5;
+                            c02 += r1 * r6;
+                            c10 += r2 * r4;
+                            c11 += r2 * r5;
+                            c12 += r2 * r6;
+                            c20 += r3 * r4;
+                            c21 += r3 * r5;
+                            c22 += r3 * r6;
+                        }
+                        C[t] = c00;
+                        C[t + 1] = c01;
+                        C[t + 2] = c02;
+                        C[tt] = c10;
+                        C[tt + 1] = c11;
+                        C[tt + 2] = c12;
+                        C[ttt] = c20;
+                        C[ttt + 1] = c21;
+                        C[ttt + 2] = c22;
+                    }
+                }
 }
 
 /**
@@ -146,6 +231,62 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  * 
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) {
+    int ib, i, t, k, j, h,temp;
+    double max, sum;
+    int maxind = i;
+    double *tempv;
+    tempv = (double *) malloc(sizeof(double) * n);
+    for (ib = 0; ib < n; ib += b) {
+        for (i = ib; i < ib + b && i < n; i++) {
+            max = fabs(A[i * n + i]);
+            maxind = i;
+            for (t = i + 1; t < n; t++) {
+                if (fabs(A[t * n + i]) > max) {
+                    maxind = t;
+                    max = fabs(A[t * n + i]);
+                }
+            }
+
+            if (max == 0) {
+                return -1;
+            } else {
+                if (maxind != i) {
+                    temp = ipiv[i];
+                    ipiv[i] = ipiv[maxind];
+                    ipiv[maxind] = temp;
+                    for (j = 0; j < n; j++) {
+                        tempv[j] = A[i * n + j];
+                        A[i * n + j] = A[maxind * n + j];
+                        A[maxind * n + j] = tempv[j];
+                    }
+                }
+            }
+
+            for (k = i + 1; k < n; k++) {
+                A[k * n + i] = A[k * n + i] / A[i * n + i];
+                for (h = i + 1; h < ib + b && h < n; h++) {
+                    A[k * n + h] -= A[i * n + h] * A[k * n + i];
+                }
+            }
+        }
+
+        for (i = ib; i < ib + b && i < n; i++) {
+            for (j = ib + b; j < n; j++) {
+                sum = 0;
+                for (k = ib; k < i; k++) {
+                    sum += A[i * n + k] * A[k * n + j];
+                }
+                A[i * n + j] -= sum;
+            }
+        }
+
+        for (i = ib + b; i < n; i += b) {
+            for (j = ib + b; j < n; j += b) {
+                mydgemm(A, A, A, n, i, j, ib, b);
+            }
+        }
+    }
+
     return 0;
 }
 
