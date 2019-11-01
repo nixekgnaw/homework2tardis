@@ -113,95 +113,60 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
  * Same function as what you used in lab1, cache_part4.c : optimal( ... ).
  * 
  **/
-void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b) {
+void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
+{
     /* add your code here */
     /* please just copy from your lab1 function optimal( ... ) */
-    int ii, jj, kk, i1, j1, k1;
-    for (ii = i; ii < i + b && ii < n; ii += b)
-        for (jj = j; jj < j + b && jj < n; jj += b)
-            for (kk = k; kk < k + b && kk < n; kk += b)
-                for (i1 = ii; i1 < ii + b && i1 < n; i1 += 3) {
+    int ii,kk,jj;
+    int i1,j1,k1;
+    for (ii=i; ii<i+b && ii<n; ii+=b)
+        for (jj=j; jj<j+b && jj<n; jj+=b)
+            for (kk=k; kk<k+b && kk<n; kk+=b)
+                for (i1=ii; i1<ii+b && i1<n; i1+=3)
+                    for (j1=jj; j1<jj+b && j1<n; j1+=3) {
+                        register int t= i1*n+j1; // [i,j]
+                        register int tt= t+n; // [i+1,j]
+                        register int ttt= tt+n; // [i+2,j]
+                        register double c00 = C[t]; register double c01 = C[t+1]; register double c02 = C[t+2];
+                        register double c10 = C[tt]; register double c11 = C[tt+1]; register double c12 = C[tt+2];
+                        register double c20 = C[ttt]; register double c21 = C[ttt+1]; register double c22 = C[ttt+2];
 
-                    for (j1 = jj; j1 < jj + b && j1 < n; j1 += 3) {
+                        for (k1=kk; k1<k+b && k1<n; k1+=3) {
+                            /* 3 by 3 mini matrix multiplication using registers */
+                            register int ta = i1*n+k1; // [i,k]
+                            register int tta = ta+n; // [i+1,k]
+                            register int ttta = tta+n; // [i+2,k]
+                            register int tb = k1*n+j1; // [k,j]
+                            register int ttb = tb+n; // [k+1,j]
+                            register int tttb = ttb+n; // [k+2,j]
 
-                        register int t = i1 * n + j1;
-                        register int tt = t + n;
-                        register int ttt = tt + n;
-                        register double c00 = C[t];
-                        register double c01 = C[t + 1];
-                        register double c02 = C[t + 2];
-                        register double c10 = C[tt];
-                        register double c11 = C[tt + 1];
-                        register double c12 = C[tt + 2];
-                        register double c20 = C[ttt];
-                        register double c21 = C[ttt + 1];
-                        register double c22 = C[ttt + 2];
-                        for (k1 = kk; k1 < kk + b && k1 < n; k1 += 3) {
-                            register int ta = i1 * n + k1;
-                            register int tta = ta + n;
-                            register int ttta = tta + n;
-                            register int tb = k1 * n + j1;
-                            register int ttb = tb + n;
-                            register int tttb = ttb + n;
+                            register double a00 = A[ta]; register double a10 = A[tta]; register double a20 = A[ttta];
+                            register double b00 = B[tb]; register double b01 = B[tb+1]; register double b02 = B[tb+2];
 
-                            register double r1 = A[ta];     // a00
-                            register double r2 = A[tta];    // a10
-                            register double r3 = A[ttta];   // a20
-                            register double r4 = B[tb];     // b00
-                            register double r5 = B[tb + 1]; // b01
-                            register double r6 = B[tb + 2]; // b02
+                            c00 -= a00*b00; c01 -= a00*b01; c02 -= a00*b02;
+                            c10 -= a10*b00; c11 -= a10*b01; c12 -= a10*b02;
+                            c20 -= a20*b00; c21 -= a20*b01; c22 -= a20*b02;
 
-                            c00 += r1 * r4;
-                            c01 += r1 * r5;
-                            c02 += r1 * r6;
-                            c10 += r2 * r4;
-                            c11 += r2 * r5;
-                            c12 += r2 * r6;
-                            c20 += r3 * r4;
-                            c21 += r3 * r5;
-                            c22 += r3 * r6;
-                            r1 = A[ta + 1];
-                            r2 = A[tta + 1];
-                            r3 = A[ttta + 1];
-                            r4 = B[ttb];
-                            r5 = B[ttb + 1];
-                            r6 = B[ttb + 2];
-                            c00 += r1 * r4;
-                            c01 += r1 * r5;
-                            c02 += r1 * r6;
-                            c10 += r2 * r4;
-                            c11 += r2 * r5;
-                            c12 += r2 * r6;
-                            c20 += r3 * r4;
-                            c21 += r3 * r5;
-                            c22 += r3 * r6;
-                            r1 = A[ta + 2];
-                            r2 = A[tta + 2];
-                            r3 = A[ttta + 2];
-                            r4 = B[tttb];
-                            r5 = B[tttb + 1];
-                            r6 = B[tttb + 2];
-                            c00 += r1 * r4;
-                            c01 += r1 * r5;
-                            c02 += r1 * r6;
-                            c10 += r2 * r4;
-                            c11 += r2 * r5;
-                            c12 += r2 * r6;
-                            c20 += r3 * r4;
-                            c21 += r3 * r5;
-                            c22 += r3 * r6;
+                            a00 = A[ta+1]; a10 = A[tta+1]; a20 = A[ttta+1];
+                            b00 = B[ttb]; b01 = B[ttb+1]; b02 = B[ttb+2];
+
+                            c00 -= a00*b00; c01 -= a00*b01; c02 -= a00*b02;
+                            c10 -= a10*b00; c11 -= a10*b01; c12 -= a10*b02;
+                            c20 -= a20*b00; c21 -= a20*b01; c22 -= a20*b02;
+
+                            a00 = A[ta+2]; a10 = A[tta+2]; a20 = A[ttta+2];
+                            b00 = B[tttb]; b01 = B[tttb+1]; b02 = B[tttb+2];
+
+                            c00 -= a00*b00; c01 -= a00*b01; c02 -= a00*b02;
+                            c10 -= a10*b00; c11 -= a10*b01; c12 -= a10*b02;
+                            c20 -= a20*b00; c21 -= a20*b01; c22 -= a20*b02;
                         }
-                        C[t] = c00;
-                        C[t + 1] = c01;
-                        C[t + 2] = c02;
-                        C[tt] = c10;
-                        C[tt + 1] = c11;
-                        C[tt + 2] = c12;
-                        C[ttt] = c20;
-                        C[ttt + 1] = c21;
-                        C[ttt + 2] = c22;
+                        C[t] = c00; C[t+1] = c01; C[t+2] = c02;
+                        C[tt] = c10; C[tt+1] = c11; C[tt+2] = c12;
+                        C[ttt] = c20; C[ttt+1] = c21; C[ttt+2] = c22;
                     }
-                }
+
+    return;
 }
 
 /**
@@ -233,63 +198,73 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  *      return  0 : return normally 
  * 
  **/
-int mydgetrf_block(double *A, int *ipiv, int n, int b) {
-    int ib, i, t, k, j, h;
-    double max, sum;
-    int maxind = i;
-    double *tempv;
-    tempv = (double *) malloc(sizeof(double) * n);
-    for (ib = 0; ib < n; ib += b) {
-        for (i = ib; i < ib + b && i < n; i++) {
-            max = fabs(A[i * n + i]);
+
+int mydgetrf_block(double *A, int *ipiv, int n, int b) 
+{
+    int ib, end;
+    for (ib=0; ib<n; ib+=b) {
+        end = ib+b-1;
+        //PLU
+        double max;
+        int i, maxind, t, j, k;
+        for (i=ib; i<=end && i<n; i++) {
+            // ensure A can use LU decomposition
             maxind = i;
-            for (t = i + 1; t < n; t++) {
-                if (fabs(A[t * n + i]) > max) {
+            max = fabs(A[i*n+i]);
+            // printf("初始 max 的值为 %e", max);
+            for (t=i+1; t<n; t++)
+                if (fabs(A[t*n+i])>max) {
                     maxind = t;
-                    max = fabs(A[t * n + i]);
+                    max = fabs(A[t*n+i]);
+                    // printf("max 的值为 %e", max);
                 }
-            }
-
             if (max == 0) {
+                printf("%s/n","LU factoration failed: coefficient matirx is singular..？");
                 return -1;
-            } else {
+            }
+            else {
                 if (maxind != i) {
-                    int temp = ipiv[i];
+                    int temps, index;
+                    double *tempv=(double *) malloc(sizeof(double) * n);
+                    temps = ipiv[i];
                     ipiv[i] = ipiv[maxind];
-                    ipiv[maxind] = temp;
-
-                    for (j = 0; j < n; j++) {
-                        tempv[j] = A[i * n + j];
-                        A[i * n + j] = A[maxind * n + j];
-                        A[maxind * n + j] = tempv[j];
-                    }
+                    ipiv[maxind] = temps;
+                    // swap rows
+                    for (index = 0;index < n; index++){ // index=i
+                        tempv[index] = A[i*n+index];
+                        A[i*n+index] = A[maxind*n+index];
+                        A[maxind*n+index] = tempv[index];
+                    } 
                 }
             }
-            for (k = i + 1; k < n; k++) {
-                A[k * n + i] = A[k * n + i] / A[i * n + i];
-                for (h = i + 1; h < ib + b && h < n; h++) {
-                    A[k * n + h] -= A[i * n + h] * A[k * n + i];
+            // factorization
+            for (j = i+1; j<n; j++) {
+                A[j*n+i] = A[j*n+i]/A[i*n+i];
+                for (k=i+1; k<n && k<=end; k++)
+                    A[j*n+k] -= A[j*n+i]*A[i*n+k];
+            }
+            // PIL done, blue&brown
+        }
+        //pink part: update U12
+        double sum;
+        for (i=ib; i<=end && i<n; i++) {
+            for (j=end+1; j<n; j++) {
+                sum = 0.0;
+                for(k=ib; k<i; k++) {
+                    sum += A[i*n+k] * A[k*n+j];
                 }
+                A[i*n+j] = A[i*n+j] - sum; // /1
             }
         }
+ 
+        // // green part: use BLAS3, the most effecient one
 
-        for (i = ib; i < ib + b && i < n; i++) {
-            for (j = ib + b; j < n; j++) {
-                sum = 0;
-                for (k = ib; k < i; k++) {
-                    sum += A[i * n + k] * A[k * n + j];
-                }
-                A[i * n + j] -= sum;
-            }
-        }
-
-        for (i = ib + b; i < n; i += b) {
-            for (j = ib + b; j < n; j += b) {
+        for (i = ib+b; i < n; i += b){
+            for (j = ib+b; j < n; j += b){
                 mydgemm(A, A, A, n, i, j, ib, b);
             }
         }
     }
-
     return 0;
 }
 
