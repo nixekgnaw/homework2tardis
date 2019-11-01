@@ -199,72 +199,59 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  * 
  **/
 
-int mydgetrf_block(double *A, int *ipiv, int n, int b) 
-{
-    int ib, end;
-    for (ib=0; ib<n; ib+=b) {
-        end = ib+b-1;
-        //PLU
-        double max;
-        int i, maxind, t, j, k;
-        for (i=ib; i<=end && i<n; i++) {
-            // ensure A can use LU decomposition
+int mydgetrf_block(double *A, int *ipiv, int n, int b) {
+    int ib, i, t, k, j, l, maxind, tempi;
+    double max, sum, temps;
+    for (ib = 0; ib < n; ib += b) {
+        for (i = ib; i < ib + b && i < n; i++) {
+            max = fabs(A[i * n + i]);
             maxind = i;
-            max = fabs(A[i*n+i]);
-            // printf("初始 max 的值为 %e", max);
-            for (t=i+1; t<n; t++)
-                if (fabs(A[t*n+i])>max) {
+            for (t = i + 1; t < n; t++) {
+                if (fabs(A[t * n + i]) > max) {
                     maxind = t;
-                    max = fabs(A[t*n+i]);
-                    // printf("max 的值为 %e", max);
-                }
-            if (max == 0) {
-                printf("%s/n","LU factoration failed: coefficient matirx is singular..？");
-                return -1;
-            }
-            else {
-                if (maxind != i) {
-                    int temps, index;
-                    double *tempv=(double *) malloc(sizeof(double) * n);
-                    temps = ipiv[i];
-                    ipiv[i] = ipiv[maxind];
-                    ipiv[maxind] = temps;
-                    // swap rows
-                    for (index = 0;index < n; index++){ // index=i
-                        tempv[index] = A[i*n+index];
-                        A[i*n+index] = A[maxind*n+index];
-                        A[maxind*n+index] = tempv[index];
-                    } 
+                    max = fabs(A[t * n + i]);
                 }
             }
-            // factorization
-            for (j = i+1; j<n; j++) {
-                A[j*n+i] = A[j*n+i]/A[i*n+i];
-                for (k=i+1; k<n && k<=end; k++)
-                    A[j*n+k] -= A[j*n+i]*A[i*n+k];
-            }
-            // PIL done, blue&brown
-        }
-        //pink part: update U12
-        double sum;
-        for (i=ib; i<=end && i<n; i++) {
-            for (j=end+1; j<n; j++) {
-                sum = 0.0;
-                for(k=ib; k<i; k++) {
-                    sum += A[i*n+k] * A[k*n+j];
-                }
-                A[i*n+j] = A[i*n+j] - sum; // /1
-            }
-        }
- 
-        // // green part: use BLAS3, the most effecient one
 
-        for (i = ib+b; i < n; i += b){
-            for (j = ib+b; j < n; j += b){
+            if (max == 0) {
+                return -1;
+            } else {
+                if (maxind != i) {
+                    tempi = ipiv[i];
+                    ipiv[i] = ipiv[maxind];
+                    ipiv[maxind] = tempi;
+
+                    for (j = 0; j < n; j++) {
+                        temps = A[i * n + j];
+                        A[i * n + j] = A[maxind * n + j];
+                        A[maxind * n + j] = temps;
+                    }
+                }
+            }
+            for (k = i + 1; k < n; k++) {
+                A[k * n + i] = A[k * n + i] / A[i * n + i];
+                for (l = i + 1; l < ib + b && l < n; l++)
+                    A[k * n + l] -= A[i * n + l] * A[k * n + i];
+            }
+        }
+
+        for (i = ib; i < ib + b && i < n; i++) {
+            for (j = ib + b; j < n; j++) {
+                sum = 0;
+                for (k = ib; k < i; k++) {
+                    sum += A[i * n + k] * A[k * n + j];
+                }
+                A[i * n + j] -= sum;
+            }
+        }
+
+        for (i = ib + b; i < n; i += b) {
+            for (j = ib + b; j < n; j += b) {
                 mydgemm(A, A, A, n, i, j, ib, b);
             }
         }
     }
+
     return 0;
 }
 
