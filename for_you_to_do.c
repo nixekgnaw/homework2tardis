@@ -117,9 +117,9 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
     /* add your code here */
     /* please just copy from your lab1 function optimal( ... ) */
     int ii, jj, kk, i1, j1, k1;
-    for (ii = i; ii < i + b && ii < n; ii += b)
-        for (jj = j; jj < j + b && jj < n; jj += b)
-            for (kk = k; kk < k + b && kk < n; kk += b)
+    for (ii = i; ii < n; ii += b)
+        for (jj = j; jj < n; jj += b)
+            for (kk = k; kk < k+b; kk += b)
                 for (i1 = ii; i1 < ii + b && i1 < n; i1 += 3) {
 
                     for (j1 = jj; j1 < jj + b && j1 < n; j1 += 3) {
@@ -279,7 +279,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b) {
             }
         }
 
-        mydgemm(A, A, A, n, i, j, ib, b);
+        mydgemm(A, A, A, n, ib+b, ib+b, ib, b);
     }
 
     return 0;
