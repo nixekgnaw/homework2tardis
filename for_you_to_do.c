@@ -20,7 +20,7 @@
 int mydgetrf(double *A, int *ipiv, int n) {
     int i, j, t, k, l, maxind, tempi;
     double temps, max;
-    for (i = 0; i < n - 1; i++) {
+    for (i = 0; i < n - 1; i++) { //Factorize A = L*U using GE
         maxind = i;
         max = fabs(A[i * n + i]);
         for (t = i + 1; t < n; t++) {
@@ -86,6 +86,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
     int i, j;
     double sum;
     if (UPLO == 'L') {
+        //Solve L*y = b for y, using substitution
         double *y;
         y = (double *) malloc(sizeof(double) * n);
         y[0] = B[ipiv[0]];
@@ -98,6 +99,7 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
         for (i = 0; i < n; i++)
             B[i] = y[i];
     } else if (UPLO == 'U') {
+        //Solve U*x = y for x, using substitution
         B[n - 1] /= A[(n - 1) * n + n - 1];
         for (i = n - 2; i >= 0; i--) {
             sum = 0;
@@ -117,9 +119,9 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
     /* add your code here */
     /* please just copy from your lab1 function optimal( ... ) */
     int ii, jj, kk, i1, j1, k1;
-    for (ii = i; ii < n; ii += b)
-        for (jj = j; jj < n; jj += b)
-            for (kk = k; kk < k+b; kk += b)
+    for (ii = i; ii < n; ii += b) //ii:ib+b to n-1
+        for (jj = j; jj < n; jj += b) //jj:ib+b to n-1
+            for (kk = k; kk < k+b; kk += b) //kk:ib to ib+b-1
                 for (i1 = ii; i1 < ii + b && i1 < n; i1 += 3) {
 
                     for (j1 = jj; j1 < jj + b && j1 < n; j1 += 3) {
@@ -151,7 +153,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
                             register double r5 = B[tb + 1]; // b01
                             register double r6 = B[tb + 2]; // b02
 
-                            c00 -= r1 * r4;
+                            c00 -= r1 * r4; // is C = C - A * B
                             c01 -= r1 * r5;
                             c02 -= r1 * r6;
                             c10 -= r2 * r4;
@@ -237,7 +239,7 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b) {
     int ib, i, t, k, j, l, maxind, tempi;
     double max, sum, temps;
     for (ib = 0; ib < n; ib += b) {
-        for (i = ib; i < ib + b && i < n; i++) {
+        for (i = ib; i < ib + b && i < n; i++) { //apply BLAS2 version of GEPP to get A(ib:n , ib:end) = P’ * L’ * U’
             max = fabs(A[i * n + i]);
             maxind = i;
             for (t = i + 1; t < n; t++) {
@@ -269,17 +271,17 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b) {
             }
         }
 
-        for (i = ib; i < ib + b && i < n; i++) {
+        for (i = ib; i < ib + b && i < n; i++) { //A(ib:end , end+1:n) = LL-1 * A(ib:end , end+1:n)
             for (j = ib + b; j < n; j++) {
                 sum = 0;
                 for (k = ib; k < i; k++) {
                     sum += A[i * n + k] * A[k * n + j];
                 }
-                A[i * n + j] = A[i * n + j]-sum;
+                A[i * n + j] = (A[i * n + j]-sum)/A[i*n+i];
             }
         }
 
-        mydgemm(A, A, A, n, ib+b, ib+b, ib, b);
+        mydgemm(A, A, A, n, ib+b, ib+b, ib, b); //A(end+1:n , end+1:n ) = A(end+1:n , end+1:n ) - A(end+1:n , ib:end) * A(ib:end , end+1:n)
     }
 
     return 0;
