@@ -84,23 +84,26 @@ void mydtrsv(char UPLO, double *A, double *B, int n, int *ipiv) {
 
     /* add your code here */
     int i, j;
+    double sum;
     if (UPLO == 'L') {
         double *y;
         y = (double *) malloc(sizeof(double) * n);
         y[0] = B[ipiv[0]];
         for (i = 1; i < n; i++) {
-            y[i] = B[ipiv[i]];
+            sum = 0;
             for (j = 0; j < i; j++)
-                y[i] -= y[j] * A[i * n + j];
+                sum += y[j] * A[i * n + j];
+            y[i] = B[ipiv[i]] - sum;
         }
         for (i = 0; i < n; i++)
             B[i] = y[i];
     } else if (UPLO == 'U') {
         B[n - 1] /= A[(n - 1) * n + n - 1];
         for (i = n - 2; i >= 0; i--) {
+            sum = 0;
             for (j = i + 1; j < n; j++)
-                B[i] -= B[j] * A[i * n + j];
-            B[i] /= A[i * n + i];
+                sum += B[j] * A[i * n + j];
+            B[i] = (B[i] - sum) / A[i * n + i];
         }
     }
 }
@@ -114,9 +117,9 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
     /* add your code here */
     /* please just copy from your lab1 function optimal( ... ) */
     int ii, jj, kk, i1, j1, k1;
-    for (ii = 0; ii < i + b && ii < n; ii += b)
-        for (jj = 0; jj < j + b && jj < n; jj += b)
-            for (kk = 0; kk < k + b && kk < n; kk += b)
+    for (ii = i; ii < i + b && ii < n; ii += b)
+        for (jj = j; jj < j + b && jj < n; jj += b)
+            for (kk = k; kk < k + b && kk < n; kk += b)
                 for (i1 = ii; i1 < ii + b && i1 < n; i1 += 3) {
 
                     for (j1 = jj; j1 < jj + b && j1 < n; j1 += 3) {
@@ -231,7 +234,7 @@ void mydgemm(double *A, double *B, double *C, int n, int i, int j, int k, int b)
  * 
  **/
 int mydgetrf_block(double *A, int *ipiv, int n, int b) {
-    int ib, i, t, k, j, h,temp;
+    int ib, i, t, k, j, h;
     double max, sum;
     int maxind = i;
     double *tempv;
@@ -251,9 +254,10 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b) {
                 return -1;
             } else {
                 if (maxind != i) {
-                    temp = ipiv[i];
+                    int temp = ipiv[i];
                     ipiv[i] = ipiv[maxind];
                     ipiv[maxind] = temp;
+
                     for (j = 0; j < n; j++) {
                         tempv[j] = A[i * n + j];
                         A[i * n + j] = A[maxind * n + j];
@@ -261,7 +265,6 @@ int mydgetrf_block(double *A, int *ipiv, int n, int b) {
                     }
                 }
             }
-
             for (k = i + 1; k < n; k++) {
                 A[k * n + i] = A[k * n + i] / A[i * n + i];
                 for (h = i + 1; h < ib + b && h < n; h++) {
