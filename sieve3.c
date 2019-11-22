@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
             }
             for (i = first + (block_low_value - low_value) / 2; i <= (block_high_value - low_value) / 2; i += prime)
                 marked[i] = 1;
-            while(local_marked[++index] == 1);
+            while(local_prime_marked[++index] == 1);
             prime = index + 2;
         }
         block_low_value = block_high_value + 2;
