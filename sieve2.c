@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     low_value = 3;
     high_value = (n - 1) / p + 1;
     local_prime_size = (int) sqrt((double) n);
-    local_prime_marked = (char *) malloc(size0);
+    local_prime_marked = (char *) malloc(local_prime_size);
     if (local_prime_marked == NULL) {
         rintf("Cannot allocate enough memory\n");
         MPI_Finalize();
@@ -125,8 +125,8 @@ int main(int argc, char *argv[]) {
                 first = (prime - low_value % prime) / 2;
         }
         for (i = first; i < size; i += prime) marked[i] = 1;
-        while (smallMarked[++index]);
-        prime = index * 2 + 3
+        while (local_prime_marked[++index]);
+        prime = index * 2 + 3;
     } while (prime * prime <= n);
     count = 0;
     for (i = 0; i < size; i++)
