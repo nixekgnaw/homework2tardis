@@ -61,10 +61,11 @@ int main(int argc, char *argv[]) {
     local_prime_size = (int) sqrt((double) n);
     local_prime_marked = (char *) malloc(local_prime_size);
     if (local_prime_marked == NULL) {
-        rintf("Cannot allocate enough memory\n");
+        printf("Cannot allocate enough memory\n");
         MPI_Finalize();
         exit(1);
     }
+
     for (i = 0; i < local_prime_size; i++) local_prime_marked[i] = 0;
     index = 0;
     prime = 3;
