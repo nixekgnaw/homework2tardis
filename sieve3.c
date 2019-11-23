@@ -137,16 +137,18 @@ int main(int argc, char *argv[]) {
         prime = 3;
         do {
             if (prime * prime > block_low_value)
-                first = (block_low_value - low_value) / 2 + (prime * prime - block_low_value) / 2;
+                first = (prime * prime - block_low_value) / 2;
             else {
                 if (!(block_low_value % prime))
-                    first = (block_low_value - low_value) / 2;
+                    first = 0;
                 else if (block_low_value % prime % 2 == 0)
-                    first = (block_low_value - low_value) / 2 + prime - ((block_low_value % prime) / 2);
+                    first =  prime - ((block_low_value % prime) / 2);
                 else
-                    first = (block_low_value - low_value) / 2 + (prime - (block_low_value % prime)) / 2;
+                    first =  (prime - (block_low_value % prime)) / 2;
+
             }
-            for (i = first; i < block_size; i += prime) {
+            first += (block_low_value - low_value) / 2
+            for (i = first; i < (block_high_value-low_value)/2; i += prime) {
                 marked[i] = 1;
             }
             while (local_prime_marked[++index]);
@@ -161,17 +163,6 @@ int main(int argc, char *argv[]) {
     if (!id) count++;
     if (p > 1)
         MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-
-
-
-
-
-
-
-
-
-
 
     /* Print the results */
 
