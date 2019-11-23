@@ -52,13 +52,6 @@ int main(int argc, char *argv[]) {
 
     n = atoll(argv[1]);
 
-    /* Figure out this process's share of the array, as
-       well as the integers represented by the first and
-       last array elements */
-
-    /* Stop the timer */
-
-    elapsed_time += MPI_Wtime();
 
     /* Add you code here  */
 
@@ -97,7 +90,7 @@ int main(int argc, char *argv[]) {
     well as the integers represented by the first and
     last array elements */
 
-    if (n % 2 == 0) n--;
+    if (n % 2 ==0) n--;
 
     low_value = 3 + id * (n - 1) / p;
     high_value = 1 + (id + 1) * (n - 1) / p;
@@ -106,7 +99,7 @@ int main(int argc, char *argv[]) {
     /* Bail out if all the primes used for sieving are
        not all held by process 0 */
 
-    proc0_size = (n - 1) / (2 * p);
+    proc0_size = (n - 1) / (2*p);
 
     if ((1 + proc0_size) < (int) sqrt((double) n)) {
         if (!id) printf("Too many processes\n");
@@ -190,13 +183,17 @@ int main(int argc, char *argv[]) {
             block_high_value = high_value;
     } while (block_low_value <= high_value);
 
-
     count = 0;
     for (i = 0; i < size; i++)
         if (!marked[i]) count++;
     if (!id) count++;
     if (p > 1)
         MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    /* Stop the timer */
+
+    elapsed_time += MPI_Wtime();
+
 
     /* Print the results */
 
