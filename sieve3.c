@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
             }
             while (local_prime_marked[++index]);
             prime = index * 2 + 3;
-        } while (prime * prime <= n);
+        } while (prime * prime <= block_high_value);
     }
 
 
