@@ -71,21 +71,21 @@ int main(int argc, char *argv[]) {
     index = 0;
     local_prime = 3;
     do {
-        if (prime * prime > low_value)
-            first = (prime * prime - low_value) / 2;
+        if (local_prime * local_prime > low_value)
+            first = (local_prime * local_prime - low_value) / 2;
         else {
-            if (!(low_value % prime)) first = 0;
-            else if (low_value % prime % 2 == 0)
-                first = prime - ((low_value % prime) / 2);
+            if (!(low_value % local_prime)) first = 0;
+            else if (low_value % local_prime % 2 == 0)
+                first = local_prime - ((low_value % local_prime) / 2);
             else
-                first = (prime - (low_value % prime)) / 2;
+                first = (local_prime - (low_value % local_prime)) / 2;
         }
-        for (i = first; i < local_prime_size; i += prime) {
+        for (i = first; i < local_prime_size; i += local_prime) {
             local_prime_marked[i] = 1;
         }
         while (local_prime_marked[++index]);
-        prime = index * 2 + 3;
-    } while (prime * prime <= n);
+        local_prime = index * 2 + 3;
+    } while (local_prime * local_prime <= n);
 
     /* Figure out this process's share of the array, as
     well as the integers represented by the first and
