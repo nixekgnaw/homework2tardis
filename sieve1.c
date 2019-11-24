@@ -45,18 +45,18 @@ int main(int argc, char *argv[]) {
     /* Figure out this process's share of the array, as
         well as the integers represented by the first and
         last array elements */
+    if (n % 2 ==0) n--;
 
     low_value = id * ((n - 1) / 2) / p * 2 + 3;
     high_value = (id + 1) * ((n - 1) / 2) / p * 2 + 1;
     size = (high_value - low_value) / 2 + 1;
 
-
     /* Bail out if all the primes used for sieving are
        not all held by process 0 */
 
-    proc0_size = (n - 1) / p;
+    proc0_size = (n - 1) / (2*p);
 
-    if ((2 + proc0_size) < (int) sqrt((double) n)) {
+    if ((1 + proc0_size) < (int) sqrt((double) n)) {
         if (!id) printf("Too many processes\n");
         MPI_Finalize();
         exit(1);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
             first = (prime * prime - low_value) / 2;
         else {
             if (!(low_value % prime)) first = 0;
-            else if (low_value % prime % 2 == 0)
+            else if (low_value % prime % 2 == 0)         //Tricky...spend so many times
                 first = prime - (low_value % prime / 2);
             else
                 first = (prime - low_value % prime) / 2;
@@ -97,16 +97,7 @@ int main(int argc, char *argv[]) {
         if (!marked[i]) count++;
     if (!id) count++;
     if (p > 1)
-        MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM,
-                   0, MPI_COMM_WORLD);
-
-
-
-
-
-
-
-
+        MPI_Reduce(&count, &global_count, 1, MPI_INT, MPI_SUM,0, MPI_COMM_WORLD);
 
 
     /* Stop the timer */
@@ -116,6 +107,7 @@ int main(int argc, char *argv[]) {
     /* Print the results */
 
     if (!id) {
+        global_count++;
         printf("The total number of prime: %ld, total time: %10.6f, total node %d\n", global_count, elapsed_time, p);
 
     }
