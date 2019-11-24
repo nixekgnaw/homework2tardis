@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
 
     /* Add you code here  */
 
+    if (n % 2 ==0) n--;
     /* make a init array so don't need to breadcast*/
     low_value = 3;
     high_value = (n - 1) / p + 1;
@@ -90,6 +91,7 @@ int main(int argc, char *argv[]) {
     well as the integers represented by the first and
     last array elements */
 
+
     low_value = id * ((n - 1) / 2) / p * 2 + 3;
     high_value = (id + 1) * ((n - 1) / 2) / p * 2 + 1;
     size = (high_value - low_value) / 2 + 1;
@@ -97,9 +99,9 @@ int main(int argc, char *argv[]) {
     /* Bail out if all the primes used for sieving are
        not all held by process 0 */
 
-    proc0_size = (n - 1) / p;
+    proc0_size = (n - 1) / (2*p);
 
-    if ((2 + proc0_size) < (int) sqrt((double) n)) {
+    if ((1 + proc0_size) < (int) sqrt((double) n)) {
         if (!id) printf("Too many processes\n");
         MPI_Finalize();
         exit(1);
